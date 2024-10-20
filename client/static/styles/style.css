@@ -35,6 +35,23 @@ header {
     justify-content: space-between; /* จัดเรียงเนื้อหาภายในไปซ้ายและขวา */
 }
 
+.welcome-message {
+    position: absolute; /* Allows for movement across the screen */
+    white-space: nowrap; /* Prevents text from wrapping */
+    animation: slide-in 5s linear forwards; /* Adjust duration as needed */
+    font-size: 20px; /* Adjust font size as needed */
+    color: #4CAF50; /* Change color as needed */
+}
+
+@keyframes slide-in {
+    0% {
+        transform: translateX(-100%); /* Start from the left side of the screen */
+    }
+    100% {
+        transform: translateX(100%); /* Move to the right side of the screen */
+    }
+}
+
 .admin-section {
     display: flex; /* ใช้ Flexbox ใน admin-section */
     align-items: center; /* จัดแนวให้แนวตั้งอยู่ตรงกลาง */

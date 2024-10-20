@@ -12,15 +12,13 @@
         <div class="header-content">
             <h1>Rov Account Store</h1>
             <div class="admin-section">
-                {% if session.get('logged_in') %}
-                    <form action="{{ url_for('admin_logout') }}" method="POST" style="display: inline;">
-                        <p style="display: inline; margin-right: 10px;">Admin</p>
-                        <button type="submit" class="logout-button">Logout</button>
-                    </form>
-                {% endif %}
+                <p id="admin-username" style="display: none; margin-right: 10px;"></p>
+                <form id="logout-form" action="{{ url_for('admin_logout') }}" method="POST" style="display: none;">
+                    <button type="submit" class="logout-button" onclick="logout()">Logout</button>
+                </form>
             </div>
         </div>
-    </header>    
+    </header>           
     
     <main>
         <div id="product-list"></div>
@@ -29,66 +27,6 @@
     <footer>
         <p>&copy; 2024 Rov Store. All rights reserved.</p>
     </footer>
-
-    <script>
-        // Fetch products from the server
-        fetch('http://localhost:3000/products')
-            .then(response => response.json())
-            .then(products => {
-                const productList = document.getElementById('product-list');
-                products.forEach(product => {
-                    const productDiv = document.createElement('div');
-                    productDiv.classList.add('product');
-                    productDiv.innerHTML = `
-                        <img src="${product.image}" alt="Rov Account ${product.id}">
-                        <h2>ราคา: ${product.price} บาท</h2>
-                        <p>รายละเอียด: ${product.description}</p>
-                        <a href="/product/${product.id}" class="details-button">ดูรายละเอียดเพิ่มเติม</a>
-                        <div class="button-group"> <!-- New div for buttons -->
-                            <button class="edit-button" onclick="editProduct(${product.id})">แก้ไข</button>
-                            <button class="delete-button" onclick="confirmDelete(${product.id})">ลบ</button>
-                        </div>
-                    `;
-                    productList.appendChild(productDiv);
-                });
-            })
-            .catch(error => console.error('Error fetching products:', error));
-
-        // Function to handle edit product
-        function editProduct(productId) {
-            // Redirect to the product detail page
-            window.location.href = `/product/${productId}/edit`;
-        }
-
-        // Function to confirm deletion
-        function confirmDelete(productId) {
-            Swal.fire({
-                title: 'คุณแน่ใจหรือไม่?',
-                text: "คุณต้องการลบสินค้านี้?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'ใช่'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Call API to delete the product
-                    fetch(`http://localhost:3000/admin/delete-item/${productId}`, {
-                        method: 'DELETE',
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            Swal.fire('Deleted!', 'สินค้านี้ถูกลบเรียบร้อยแล้ว.', 'success');
-                            // Optionally, refresh the product list after deletion
-                            // location.reload();
-                        } else {
-                            Swal.fire('Error!', 'ไม่สามารถลบสินค้าได้.', 'error');
-                        }
-                    })
-                    .catch(error => console.error('Error deleting product:', error));
-                }
-            });
-        }
-    </script>    
+    <script src="{{ url_for('static', filename='scripts/index.js') }}"></script> <!-- Call the external JS file -->
 </body>
 </html>

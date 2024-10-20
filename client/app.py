@@ -1,11 +1,17 @@
 import os
 import requests
+import jwt
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # เปลี่ยนเป็นรหัสที่ปลอดภัยกว่า
+
+# Secret key for JWT
+JWT_SECRET = 'your_jwt_secret_key'
+JWT_ALGORITHM = 'HS256'
 
 # URL ของเซิร์ฟเวอร์ Express
 EXPRESS_SERVER_URL = 'http://localhost:3000/products'  # เปลี่ยนถ้าจำเป็น
@@ -16,11 +22,25 @@ admin_user = {
     'password': generate_password_hash('admin123')  # ใช้ hashing สำหรับรหัสผ่านจริง
 }
 
-def login_required(f):
+# Helper function to create JWT token
+def create_jwt_token(username):
+    expiration = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
+    token = jwt.encode({'username': username, 'exp': expiration}, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return token
+
+# Decorator to require JWT in protected routes
+def jwt_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'logged_in' not in session:
-            return redirect(url_for('admin_login'))
+        token = request.headers.get('Authorization').split(" ")[1]  # Bearer <token>
+        if not token:
+            return jsonify({'message': 'Missing token'}), 401
+        try:
+            jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        except jwt.ExpiredSignatureError:
+            return jsonify({'message': 'Token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'message': 'Invalid token'}), 401
         return f(*args, **kwargs)
     return decorated_function
 
@@ -53,19 +73,43 @@ def admin_login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
+
         if username == admin_user['username'] and check_password_hash(admin_user['password'], password):
-            session['logged_in'] = True
-            return redirect(url_for('home'))  # Redirect to the home route instead of 'index'
+            session['logged_in'] = True  # Set logged in status
+            session['username'] = username  # Store username in session
+            token = create_jwt_token(username)
+            session['token'] = token  # Store token in session
+
+            # Fetch admin user information from the Express server
+            headers = {'Authorization': f'Bearer {token}'}
+            response = requests.get('http://localhost:3000/admin/user', headers=headers)
+
+            if response.status_code == 200:
+                admin_user_data = response.json()  # Get the admin user data
+                return jsonify({
+                    "token": token,
+                    "message": "Login successful!",
+                    "admin_user": admin_user_data  # Include admin user data in the response
+                }), 200
+            else:
+                return jsonify({"message": "Login successful, but failed to fetch admin user data!"}), 200
         else:
-            return render_template('login.html', error_message="Login failed!")
+            return jsonify({"message": "Login failed!"}), 401
     return render_template('login.html')
 
 @app.route('/admin/logout', methods=['POST'])
-@login_required
 def admin_logout():
     session.pop('logged_in', None)  # Remove the logged-in status from the session
     return redirect(url_for('admin_login'))  # Redirect to the login page
+
+# Protected route example
+@app.route('/admin/add-item', methods=['POST'])
+@jwt_required
+def add_item():
+    # Get the item details from the request
+    new_item = request.json
+    # Code to add item (forward request to Express server or add logic here)
+    return jsonify({'message': 'Item added successfully'}), 201
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
