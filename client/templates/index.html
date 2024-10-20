@@ -4,18 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rov Store</title>
-    <!-- Link to the CSS stylesheet in the static folder -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
 </head>
 <body>
-    <h1>Rov Account Items for Sale</h1>
-    <div id="product-list">
-        <!-- Example product item -->
-        <div class="product">
-            <img src="{{ url_for('static', filename='images/rov_account_1.jpg') }}" alt="Rov Account 1">
-            <h2>ราคา: 500 บาท</h2>
-            <p>รายละเอียด : ไอดีสะอาด</p>
-        </div>
-    </div>
+    <header>
+        <h1>Rov Account Store</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div id="product-list"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Rov Store. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Fetch products from the server
+        fetch('http://localhost:3000/products')
+            .then(response => response.json())
+            .then(products => {
+                const productList = document.getElementById('product-list');
+                products.forEach(product => {
+                    const productDiv = document.createElement('div');
+                    productDiv.classList.add('product');
+                    productDiv.innerHTML = `
+                        <img src="${product.image}" alt="Rov Account ${product.id}">
+                        <h2>ราคา: ${product.price} บาท</h2>
+                        <p>รายละเอียด: ${product.description}</p>
+                    `;
+                    productList.appendChild(productDiv);
+                });
+            })
+            .catch(error => console.error('Error fetching products:', error));
+    </script>
 </body>
 </html>
