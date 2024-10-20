@@ -53,7 +53,6 @@ def product_detail(product_id):
     response = requests.get(EXPRESS_SERVER_URL)
     if response.status_code != 200:
         return "Error fetching products", 500
-    
     products = response.json()
     
     product = next((p for p in products if p['id'] == product_id), None)
@@ -61,7 +60,7 @@ def product_detail(product_id):
         return render_template('product_detail.html', product=product)
     else:
         return "Product not found", 404
-
+    
 @app.route('/products')
 def get_products():
     response = requests.get(EXPRESS_SERVER_URL)
@@ -101,15 +100,6 @@ def admin_login():
 def admin_logout():
     session.pop('logged_in', None)  # Remove the logged-in status from the session
     return redirect(url_for('admin_login'))  # Redirect to the login page
-
-# Protected route example
-@app.route('/admin/add-item', methods=['POST'])
-@jwt_required
-def add_item():
-    # Get the item details from the request
-    new_item = request.json
-    # Code to add item (forward request to Express server or add logic here)
-    return jsonify({'message': 'Item added successfully'}), 201
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
