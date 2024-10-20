@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rov Store</title>
+    <!-- Link to the CSS stylesheet in the static folder -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+</head>
+<body>
+    <h1>Rov Account Items for Sale</h1>
+    <div id="product-list">
+        <!-- Example product item -->
+        <div class="product">
+            <img src="{{ url_for('static', filename='images/rov_account_1.jpg') }}" alt="Rov Account 1">
+            <h2>ราคา: 500 บาท</h2>
+            <p>รายละเอียด : ไอดีสะอาด</p>
+        </div>
+    </div>
+</body>
+</html>
