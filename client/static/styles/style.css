@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300&display=swap');
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 html, body {
     height: 100%; /* Ensure the body takes up full height */
     margin: 0; /* Remove default margin */
@@ -13,32 +19,41 @@ body {
 }
 
 header {
+    display: flex; /* ใช้ Flexbox สำหรับการจัดเลย์เอาต์ */
+    justify-content: space-between; /* จัดเรียงเนื้อหาใน header จากซ้ายไปขวา */
+    align-items: center; /* จัดแนวแนวตั้งให้กับรายการ */
     background-color: #1e90ff; /* ฟ้าอ่อน */
     color: white;
-    padding: 5px; /* ปรับ padding เพื่อลดความสูง */
-    text-align: center;
+    padding: 5px 20px; /* เพิ่มการ padding แนวนอน */
     border-bottom: 3px solid #007bff; /* ฟ้าสดใสสำหรับกรอบ */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* เงาที่เบาเพื่อความลึก */
 }
 
-header nav ul {
-    list-style-type: none;
-    padding: 0;
+.header-content {
+    display: flex; /* ใช้ Flexbox สำหรับการจัดเลย์เอาต์ภายใน header */
+    width: 100%; /* ทำให้เต็มความกว้าง */
+    justify-content: space-between; /* จัดเรียงเนื้อหาภายในไปซ้ายและขวา */
 }
 
-header nav ul li {
-    display: inline;
-    margin: 0 15px;
+.admin-section {
+    display: flex; /* ใช้ Flexbox ใน admin-section */
+    align-items: center; /* จัดแนวให้แนวตั้งอยู่ตรงกลาง */
+    margin-left: auto; /* ผลักไปทางขวา */
 }
 
-header nav ul li a {
-    color: white; /* ข้อความในลิงก์เป็นสีขาว */
-    text-decoration: none;
-    transition: color 0.3s; /* Transition effect for hover */
+.logout-button {
+    background-color: #ff4d4d; /* สีพื้นหลัง */
+    color: white; /* สีตัวอักษร */
+    border: none; /* ไม่มีกรอบ */
+    border-radius: 5px; /* มุมโค้ง */
+    padding: 10px 20px; /* ระยะห่างภายใน */
+    font-size: 16px; /* ขนาดตัวอักษร */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ที่ปุ่ม */
+    transition: background-color 0.3s; /* เปลี่ยนสีพื้นหลังเมื่อเลื่อนเมาส์ */
 }
 
-header nav ul li a:hover {
-    color: #ffcc00; /* เปลี่ยนเป็นสีทองเมื่อโฮเวอร์ */
+.logout-button:hover {
+    background-color: #ff1a1a; /* สีพื้นหลังเมื่อเลื่อนเมาส์ */
 }
 
 main {
@@ -84,6 +99,49 @@ main {
 .product:hover {
     transform: translateY(-5px); /* Slight hover effect */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.button-group {
+    margin-top: 10px; /* เพิ่มช่องว่างด้านบน */
+}
+
+.button-group button {
+    margin-right: 10px; /* เพิ่มช่องว่างระหว่างปุ่ม */
+}
+
+/* ปุ่มแก้ไข */
+.edit-button {
+    font-family: 'Kanit', Arial, sans-serif; /* Use Kanit font with fallback */
+    background-color: #28a745; /* สีเขียวสำหรับแก้ไข */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 10px; /* เว้นระยะระหว่างปุ่ม */
+    transition: background-color 0.2s;
+    font-size: 14px; /* ขนาดฟอนต์ */
+}
+
+.edit-button:hover {
+    background-color: #218838; /* สีเขียวเข้มเมื่อเลื่อนเมาส์ */
+}
+
+/* ปุ่มลบ */
+.delete-button {
+    font-family: 'Kanit', Arial, sans-serif; /* Use Kanit font with fallback */
+    background-color: #dc3545; /* สีแดงสำหรับลบ */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    font-size: 14px; /* ขนาดฟอนต์ */
+}
+
+.delete-button:hover {
+    background-color: #c82333; /* สีแดงเข้มเมื่อเลื่อนเมาส์ */
 }
 
 footer {

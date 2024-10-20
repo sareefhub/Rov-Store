@@ -1,71 +1,75 @@
-// nodemon ./scripts/server.js (ในการรันคำสั่ง)
+// server.js
+
+// server.js
 
 const express = require('express');
 const cors = require('cors');
-const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = 3000;
 
-// กำหนดที่เก็บไฟล์ที่อัปโหลด
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // แก้ไขชื่อไฟล์เพื่อป้องกันการซ้ำ
-    },
-});
+// Load product data from JSON file
+const productsPath = path.join(__dirname, '..', 'data', 'products.json'); // Adjust the path accordingly
+let products = [];
 
-const upload = multer({ storage });
+// Function to load products
+const loadProducts = () => {
+    try {
+        const data = fs.readFileSync(productsPath, 'utf-8');
+        products = JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading products file:', error);
+    }
+};
 
-// รายการสินค้าเริ่มต้น
-let products = [
-  {
-    id: 1,
-    image: 'https://shorturl.asia/f6HPa',
-    price: 500,
-    description: 'ไอดีสะอาด',
-  },
-];
+// Call the function to load products when the server starts
+loadProducts();
 
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads')); // ให้บริการไฟล์ภาพจากโฟลเดอร์ uploads
 
-// อ่านรายการสินค้า
+// Read product list
 app.get('/products', (req, res) => {
-  res.json(products);
+    res.json(products);
 });
 
-// เพิ่มสินค้าใหม่พร้อมไฟล์ภาพ
-app.post('/admin/add-item', upload.single('image'), (req, res) => {
-  const newItem = {
-    id: products.length + 1,
-    image: req.file.path,
-    price: req.body.price,
-    description: req.body.description,
-  };
-  products.push(newItem);
-  res.status(201).json({ message: 'เพิ่มสินค้าสำเร็จ!', newItem });
+// Update the JSON file (optional)
+const updateProductsFile = () => {
+    fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
+};
+
+// Add new item (consider handling without image upload)
+app.post('/admin/add-item', (req, res) => {
+    const newItem = {
+        id: products.length + 1,
+        image: req.body.image, // Just use the image URL from the request body
+        price: req.body.price,
+        description: req.body.description,
+    };
+    products.push(newItem);
+    updateProductsFile(); // Update the JSON file
+    res.status(201).json({ message: 'เพิ่มสินค้าสำเร็จ!', newItem });
 });
 
-// แก้ไขสินค้า
+// Edit item
 app.put('/admin/edit-item/:id', (req, res) => {
-  const { id } = req.params;
-  const updatedItem = req.body;
-  products = products.map((item) => (item.id === parseInt(id) ? { ...item, ...updatedItem } : item));
-  res.json({ message: 'แก้ไขสินค้าสำเร็จ!' });
+    const { id } = req.params;
+    const updatedItem = req.body;
+    products = products.map((item) => (item.id === parseInt(id) ? { ...item, ...updatedItem } : item));
+    updateProductsFile(); // Update the JSON file
+    res.json({ message: 'แก้ไขสินค้าสำเร็จ!' });
 });
 
-// ลบสินค้า
+// Delete item
 app.delete('/admin/delete-item/:id', (req, res) => {
-  const { id } = req.params;
-  products = products.filter((item) => item.id !== parseInt(id));
-  res.json({ message: 'ลบสินค้าสำเร็จ!' });
+    const { id } = req.params;
+    products = products.filter((item) => item.id !== parseInt(id));
+    updateProductsFile(); // Update the JSON file
+    res.json({ message: 'ลบสินค้าสำเร็จ!' });
 });
 
 app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+    console.log(`Server running on http://localhost:${port}`);
 });

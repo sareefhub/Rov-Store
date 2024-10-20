@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Function to show SweetAlert if the form is submitted with empty fields
+        function validateForm(event) {
+            const username = document.querySelector('input[name="username"]').value;
+            const password = document.querySelector('input[name="password"]').value;
+
+            if (!username || !password) {
+                event.preventDefault(); // Prevent form submission
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาป้อนข้อมูลให้ครบถ้วน',
+                    text: 'โปรดป้อนชื่อผู้ใช้และรหัสผ่านก่อนเข้าสู่ระบบ',
+                });
+            }
+        }
+
+        // Function to show SweetAlert for invalid login
+        function showInvalidLogin() {
+            Swal.fire({
+                icon: 'error',
+                title: 'เข้าสู่ระบบไม่สำเร็จ',
+                text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
+            });
+        }
+
+        // Function to show SweetAlert for successful login
+        function showSuccessLogin() {
+            Swal.fire({
+                icon: 'success',
+                title: 'เข้าสู่ระบบสำเร็จ',
+                text: 'คุณกำลังเข้าสู่ระบบ...',
+                willClose: () => {
+                    // Redirect to the admin dashboard or another page
+                    window.location.href = '/'; // เปลี่ยนเส้นทางไปยังหน้าแดชบอร์ดของคุณ
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Admin Login</h1>
+        <form method="POST" action="/admin/login" onsubmit="validateForm(event)">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        {% if error_message %}
+            <script>
+                showInvalidLogin();
+            </script>
+        {% endif %}
+        {% if success_message %}
+            <script>
+                showSuccessLogin();
+            </script>
+        {% endif %}
+    </div>
+</body>
+</html>

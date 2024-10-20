@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_detail.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Rov Account Details</h1>
+    </header>
+
+    <main>
+        <div class="product-detail">
+            <h2>ราคา: {{ product.price }} บาท</h2>
+            <p>รายละเอียด: {{ product.description }}</p>
+            <p>รหัสสินค้า: {{ product.id }}</p>
+
+            <h3>รูปภาพหลัก:</h3>
+            <img src="{{ product.image }}" alt="Main Product Image" class="expandable-image">
+
+            <h3>รูปภาพเพิ่มเติม:</h3>
+            <div class="additional-images">
+                {% if product.additionalImages %}
+                    {% for image in product.additionalImages %}
+                        <img src="{{ image }}" alt="Additional Product Image" class="expandable-image">
+                    {% endfor %}
+                {% else %}
+                    <p>ไม่มีรูปภาพเพิ่มเติม</p>
+                {% endif %}
+            </div>
+            <a href="/">กลับสู่หน้าหลัก</a>
+        </div>
+    </main>
+
+    <!-- Modal for image enlargement -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="caption"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Rov Store. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // JavaScript to handle image enlargement
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const captionText = document.getElementById('caption');
+        const closeBtn = document.getElementsByClassName('close')[0];
+
+        document.querySelectorAll('.expandable-image').forEach(img => {
+            img.addEventListener('click', function() {
+                modal.style.display = 'block';
+                modalImg.src = this.src;
+                captionText.innerHTML = this.alt;
+            });
+        });
+
+        // Close the modal
+        closeBtn.onclick = function() { 
+            modal.style.display = 'none';
+        };
+
+        // Close modal when clicking outside the image
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>
