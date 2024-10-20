@@ -32,7 +32,7 @@ fetch('http://localhost:3000/products')
 
 // Function to handle edit product
 function editProduct(productId) {
-    window.location.href = `/product/${productId}/edit`;
+    window.location.href = `/admin/edit-item/<int:item_id>`;
 }
 
 // Function to confirm deletion

@@ -1,4 +1,4 @@
-// JavaScript to handle image enlargement
+// product_detail.js
 const modal = document.getElementById('imageModal');
 const modalImg = document.getElementById('modalImage');
 const captionText = document.getElementById('caption');
