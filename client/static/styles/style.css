@@ -58,6 +58,22 @@ header {
     margin-left: auto; /* ผลักไปทางขวา */
 }
 
+.add-product-btn {
+    margin-right: 500px;
+    padding: 10px 20px;
+    background-color: #FFA500; /* Orange background */
+    color: white; /* White text */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.add-product-btn:hover {
+    background-color: #FF8C00; /* Darker orange on hover */
+}
+
 .logout-button {
     background-color: #ff4d4d; /* สีพื้นหลัง */
     color: white; /* สีตัวอักษร */

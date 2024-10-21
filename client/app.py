@@ -101,5 +101,13 @@ def admin_logout():
     session.pop('logged_in', None)  # Remove the logged-in status from the session
     return redirect(url_for('admin_login'))  # Redirect to the login page
 
+@app.route('/product/edit/<int:product_id>', methods=['GET'])
+def product_edit(product_id):
+    return render_template('product_edit.html', product=product_id)
+
+@app.route('/product/add', methods=['POST'])
+def product_add():
+    return render_template('product_add.html')
+
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

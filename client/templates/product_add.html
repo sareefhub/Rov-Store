@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Product</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Add New Rov Account</h1>
+    </header>
+
+    <main>
+        <form id="add-product-form">
+            <label for="image">Main Image URL:</label>
+            <input type="text" id="image" name="image" placeholder="Enter main image URL" required>
+            <br>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" placeholder="Enter price" required>
+            <br>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" placeholder="Enter product description" required></textarea>
+            <br>
+
+            <h3>Additional Images:</h3>
+            <div id="additional-images">
+                <input type="text" name="additionalImage1" placeholder="Enter additional image URL">
+            </div>
+            <button type="button" id="add-image-btn">Add Another Image</button>
+            <br>
+
+            <button type="submit">Add Product</button>
+        </form>
+
+        <a href="/">Back to Home</a>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Rov Store. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Add product form submission
+        document.getElementById('add-product-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('jwt_token'); // Use JWT token for authentication
+
+            const newProduct = {
+                image: document.getElementById('image').value,
+                price: document.getElementById('price').value,
+                description: document.getElementById('description').value,
+                additionalImages: Array.from(document.querySelectorAll('#additional-images input')).map(input => input.value)
+            };
+
+            fetch('http://localhost:3000/admin/add-item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Authorization header
+                },
+                body: JSON.stringify(newProduct)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Product added successfully');
+                window.location.href = '/'; // Redirect to home page after adding
+            })
+            .catch(error => {
+                console.error('Error adding product:', error);
+            });
+        });
+
+        // Add another image field dynamically
+        document.getElementById('add-image-btn').addEventListener('click', function() {
+            const additionalImagesContainer = document.getElementById('additional-images');
+            const newInput = document.createElement('input');
+            newInput.setAttribute('type', 'text');
+            newInput.setAttribute('name', `additionalImage${additionalImagesContainer.children.length + 1}`);
+            newInput.setAttribute('placeholder', 'Enter additional image URL');
+            additionalImagesContainer.appendChild(newInput);
+        });
+    </script>
+</body>
+</html>
