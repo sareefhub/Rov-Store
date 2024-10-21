@@ -1,3 +1,4 @@
+/* Form Styles */
 label {
     font-weight: bold;
     margin-top: 10px;
@@ -38,6 +39,26 @@ button:hover {
     background-color: #357ABD; /* Darker shade on hover */
 }
 
+/* File upload styles */
+.file-upload-input {
+    display: none; /* Hide the input element */
+}
+
+.file-upload-label {
+    display: inline-block;
+    background-color: #4A90E2; /* Button background color */
+    color: white; /* Button text color */
+    padding: 10px 15px; /* Padding around the button */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Change cursor to pointer */
+    font-size: 14px; /* Font size */
+    margin-top: 10px; /* Space above the button */
+}
+
+.file-upload-label:hover {
+    background-color: #357ABD; /* Darker shade on hover */
+}
+
 /* Additional images section */
 #additional-images {
     margin-top: 10px;
@@ -51,4 +72,25 @@ button:hover {
 
 #add-image-btn:hover {
     background-color: #d0d0d0; /* Darker shade on hover */
+}
+
+/* Additional images preview styles */
+.image-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.additional-image-preview {
+    max-width: 100px; /* Limit preview image width */
+    max-height: 100px; /* Limit preview image height */
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc; /* Optional border for preview images */
+    border-radius: 4px; /* Rounded corners */
+}
+
+.back-link {
+    margin-top: 10px; /* Add space above the link */
+    display: inline-block; /* Ensure margin applies properly */
 }
