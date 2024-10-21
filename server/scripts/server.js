@@ -92,14 +92,24 @@ const updateProductsFile = () => {
 };
 
 // Add new item (requires JWT token)
-app.post('/admin/add-item', verifyToken, upload.fields([{ name: 'mainImage' }, { name: 'additionalImageFile1' }, { name: 'additionalImageFile2' }, { name: 'additionalImageFile3' }, { name: 'additionalImageFile4' }, { name: 'additionalImageFile5' }]), (req, res) => {
+app.post('/admin/add-item', verifyToken, upload.fields([
+    { name: 'mainImage' },
+    ...Array.from({ length: 25 }, (_, i) => ({ name: `additionalImageFile${i + 1}` }))
+]), (req, res) => {
     const newItem = {
         id: products.length + 1,
         image: req.files['mainImage'] ? req.files['mainImage'][0].filename : '', // Save main image filename
         price: req.body.price,
         description: req.body.description,
-        additionalImages: req.files['additionalImageFile1'] ? req.files['additionalImageFile1'].map(file => file.filename) : [] // Save additional images filenames
+        additionalImages: []
     };
+
+    // เก็บชื่อไฟล์ของภาพเพิ่มเติม
+    for (let i = 1; i <= 25; i++) {
+        if (req.files[`additionalImageFile${i}`]) {
+            newItem.additionalImages.push(...req.files[`additionalImageFile${i}`].map(file => file.filename));
+        }
+    }
 
     products.push(newItem);
     updateProductsFile(); // Update the JSON file

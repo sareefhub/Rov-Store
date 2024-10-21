@@ -69,8 +69,9 @@
 
             const mainImageFile = document.getElementById('mainImageUpload').files[0];
             if (mainImageFile) {
+                // Assuming you have a function to upload the image and get the URL
                 const mainImageFilename = `idrovimage_${newProductId}.jpg`; // Specify filename for main image
-                newProduct.image = mainImageFilename;
+                newProduct.image = `https://shorturl.asia/${mainImageFilename}`; // Change this line to use your actual image URL
             }
 
             // Collect additional images and generate structured filenames
@@ -83,7 +84,7 @@
             for (let i = 0; i < additionalImageFiles.length; i++) {
                 const file = additionalImageFiles[i];
                 const additionalImageFilename = `idrovimage_${newProductId}_${i + 1}.${file.name.split('.').pop()}`; // Specify filenames for additional images
-                newProduct.additionalImages.push(additionalImageFilename);
+                newProduct.additionalImages.push(`https://shorturl.asia/${additionalImageFilename}`); // Change this line to use your actual image URL
             }
 
             // Handle file uploads
