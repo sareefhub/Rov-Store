@@ -69,12 +69,20 @@ function logout() {
         method: 'POST'
     })
     .then(() => {
-        // Clear session storage and redirect to login page
-        localStorage.removeItem('jwt_token'); // Clear the JWT token
-        localStorage.removeItem('username'); // Clear the username
-        sessionStorage.removeItem('logged_in');
-        sessionStorage.removeItem('username'); // Clear username
-        window.location.href = '/admin/login';
+        // Show success alert
+        Swal.fire({
+            icon: 'success',
+            title: 'Logged Out',
+            text: 'You have been logged out successfully.',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            // Clear session storage and redirect to login page
+            localStorage.removeItem('jwt_token'); // Clear the JWT token
+            localStorage.removeItem('username'); // Clear the username
+            sessionStorage.removeItem('logged_in');
+            sessionStorage.removeItem('username'); // Clear username
+            window.location.href = '/admin/login';
+        });
     })
     .catch(error => console.error('Logout error:', error));
 }
