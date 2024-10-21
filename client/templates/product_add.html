@@ -17,7 +17,7 @@
         <div class="product-detail">
             <form id="add-product-form">
                 <label for="mainImageUpload" class="file-upload-label">Upload Main Image:</label>
-                <input type="file" id="mainImageUpload" accept="image/*" required class="file-upload-input" single>
+                <input type="file" id="mainImageUpload" accept="image/*" required class="file-upload-input">
                 <br>
                 <img id="mainImagePreview" src="" alt="Main Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
                 <br>
@@ -36,7 +36,7 @@
                     <input type="file" id="additionalImagesUpload" accept="image/*" multiple required class="file-upload-input">
                     <p id="imageCountMessage">You can upload a maximum of 25 images.</p>
                     <p id="remainingImagesMessage"></p>
-                    <div id="additionalImagesPreview" class="image-preview-container"></div> <!-- New container for additional images -->
+                    <div id="additionalImagesPreview" class="image-preview-container"></div>
                 </div>
                 <br>
 
@@ -56,7 +56,11 @@
             event.preventDefault();
             const token = localStorage.getItem('jwt_token'); // Use JWT token for authentication
 
+            // Create a unique ID for the product
+            const newProductId = Date.now(); // Using timestamp as a unique ID
+
             const newProduct = {
+                id: newProductId, // Add the ID to the product object
                 image: '',
                 price: document.getElementById('price').value,
                 description: document.getElementById('description').value,
@@ -65,10 +69,11 @@
 
             const mainImageFile = document.getElementById('mainImageUpload').files[0];
             if (mainImageFile) {
-                newProduct.image = `idrovimage1_${mainImageFile.name}`; // Use idrovimage1 for the main image
+                const mainImageFilename = `idrovimage_${newProductId}.jpg`; // Specify filename for main image
+                newProduct.image = mainImageFilename;
             }
 
-            // Collect additional images and generate filenames
+            // Collect additional images and generate structured filenames
             const additionalImageFiles = document.getElementById('additionalImagesUpload').files;
             if (additionalImageFiles.length > 25) {
                 alert('You can only upload a maximum of 25 additional images.');
@@ -77,8 +82,8 @@
 
             for (let i = 0; i < additionalImageFiles.length; i++) {
                 const file = additionalImageFiles[i];
-                const filename = `addidrovimage1_${i + 1}_${file.name}`;
-                newProduct.additionalImages.push(filename);
+                const additionalImageFilename = `idrovimage_${newProductId}_${i + 1}.${file.name.split('.').pop()}`; // Specify filenames for additional images
+                newProduct.additionalImages.push(additionalImageFilename);
             }
 
             // Handle file uploads
@@ -89,7 +94,10 @@
             Array.from(additionalImageFiles).forEach((file, index) => {
                 formData.append(`additionalImageFile${index + 1}`, file);
             });
-            formData.append('productData', JSON.stringify(newProduct));
+
+            // Append price and description to formData
+            formData.append('price', newProduct.price);
+            formData.append('description', newProduct.description);
 
             fetch('http://localhost:3000/admin/add-item', {
                 method: 'POST',
@@ -157,6 +165,6 @@
                 reader.readAsDataURL(file);
             });
         });
-    </script>
+    </script>    
 </body>
 </html>
