@@ -12,7 +12,6 @@
         <div class="header-content">
             <h1>Rov Account Store</h1>
             <div class="admin-section">
-                <button id="add-product-button" class="add-product-btn" style="display: none;">Add Product</button>
                 <p id="admin-username" style="display: none; margin-right: 10px;"></p>
                 <form id="logout-form" action="{{ url_for('admin_logout') }}" method="POST" style="display: none;">
                     <button type="submit" class="logout-button" onclick="logout()">Logout</button>
@@ -22,6 +21,9 @@
     </header>           
     
     <main>
+        <div class="add-button-container">
+            <button onclick="window.location.href='/product/add';" id="add-product-button" class="add-product-btn" style="display: none;">Add Product</button>
+        </div>
         <div id="product-list"></div>
     </main>
 

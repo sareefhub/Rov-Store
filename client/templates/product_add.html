@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Product</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_detail.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_add.css') }}">
 </head>
 <body>
     <header>
@@ -12,30 +14,33 @@
     </header>
 
     <main>
-        <form id="add-product-form">
-            <label for="image">Main Image URL:</label>
-            <input type="text" id="image" name="image" placeholder="Enter main image URL" required>
-            <br>
+        <div class="product-detail">
+            <form id="add-product-form"> <!-- Wrap inputs in a form -->
+                <label for="mainImageUpload">Upload Main Image:</label>
+                <input type="file" id="mainImageUpload" accept="image/*" required>
+                <br>
+                <img id="mainImagePreview" src="" alt="Main Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
+                <br>
 
-            <label for="price">Price:</label>
-            <input type="number" id="price" name="price" placeholder="Enter price" required>
-            <br>
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" placeholder="Enter price" required>
+                <br>
 
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" placeholder="Enter product description" required></textarea>
-            <br>
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" placeholder="Enter product description" required></textarea>
+                <br>
 
-            <h3>Additional Images:</h3>
-            <div id="additional-images">
-                <input type="text" name="additionalImage1" placeholder="Enter additional image URL">
-            </div>
-            <button type="button" id="add-image-btn">Add Another Image</button>
-            <br>
+                <h3>Additional Images:</h3>
+                <div id="additional-images">
+                    <input type="file" name="additionalImageFile1" accept="image/*" required>
+                </div>
+                <button type="button" id="add-image-btn">Add Another Image</button>
+                <br>
 
-            <button type="submit">Add Product</button>
-        </form>
-
-        <a href="/">Back to Home</a>
+                <button type="submit">Add Product</button> <!-- Change type to submit -->
+            </form>
+            <a href="/">Back to Home</a>
+        </div>
     </main>
 
     <footer>
@@ -49,38 +54,89 @@
             const token = localStorage.getItem('jwt_token'); // Use JWT token for authentication
 
             const newProduct = {
-                image: document.getElementById('image').value,
+                image: '',
                 price: document.getElementById('price').value,
                 description: document.getElementById('description').value,
-                additionalImages: Array.from(document.querySelectorAll('#additional-images input')).map(input => input.value)
+                additionalImages: [],
             };
+
+            const mainImageFile = document.getElementById('mainImageUpload').files[0];
+            if (mainImageFile) {
+                newProduct.image = `rovimage${Date.now()}_` + mainImageFile.name; // Generate unique filename for main image
+            }
+
+            // Collect additional images and generate filenames
+            const additionalImageFiles = document.querySelectorAll('#additional-images input[type="file"]');
+            additionalImageFiles.forEach((file, index) => {
+                if (file.files[0]) {
+                    const filename = `rovid${Date.now()}_additional_Image${index + 1}_` + file.files[0].name;
+                    newProduct.additionalImages.push(filename);
+                }
+            });
+
+            // Limit the additional images to 50
+            if (newProduct.additionalImages.length > 50) {
+                alert('You can upload a maximum of 50 additional images.');
+                return;
+            }
+
+            // Handle file uploads
+            const formData = new FormData();
+            formData.append('mainImage', mainImageFile);
+            additionalImageFiles.forEach((file, index) => {
+                if (file.files[0]) {
+                    formData.append(`additionalImageFile${index + 1}`, file.files[0]);
+                }
+            });
+            formData.append('productData', JSON.stringify(newProduct));
 
             fetch('http://localhost:3000/admin/add-item', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}` // Authorization header
                 },
-                body: JSON.stringify(newProduct)
+                body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
             .then(data => {
-                alert('Product added successfully');
+                alert('Product added successfully!');
                 window.location.href = '/'; // Redirect to home page after adding
             })
             .catch(error => {
                 console.error('Error adding product:', error);
+                alert('Error adding product: ' + error.message);
             });
+        });
+
+        // Preview main image upload
+        document.getElementById('mainImageUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('mainImagePreview');
+                img.src = e.target.result;
+                img.style.display = 'block'; // Show the image preview
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
         });
 
         // Add another image field dynamically
         document.getElementById('add-image-btn').addEventListener('click', function() {
             const additionalImagesContainer = document.getElementById('additional-images');
-            const newInput = document.createElement('input');
-            newInput.setAttribute('type', 'text');
-            newInput.setAttribute('name', `additionalImage${additionalImagesContainer.children.length + 1}`);
-            newInput.setAttribute('placeholder', 'Enter additional image URL');
-            additionalImagesContainer.appendChild(newInput);
+            const newInputFile = document.createElement('input');
+            newInputFile.setAttribute('type', 'file');
+            newInputFile.setAttribute('name', `additionalImageFile${additionalImagesContainer.children.length + 1}`);
+            newInputFile.setAttribute('accept', 'image/*');
+            newInputFile.setAttribute('required', true); // Make it required if needed
+
+            additionalImagesContainer.appendChild(newInputFile);
         });
     </script>
 </body>

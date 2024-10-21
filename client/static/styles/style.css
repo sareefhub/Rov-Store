@@ -41,11 +41,18 @@ header {
     margin-left: auto; /* ผลักไปทางขวา */
 }
 
+.add-button-container {
+    display: flex;
+    justify-content: center;  /* จัดปุ่มให้อยู่ตรงกลางแนวนอน */
+    align-items: center;      /* จัดปุ่มให้อยู่ตรงกลางแนวตั้ง */
+    margin: 10px 0;           /* เพิ่มระยะห่างบนและล่าง 50px */
+}
+
 .add-product-btn {
-    margin-right: 500px;
+    font-family: 'Kanit', Arial, sans-serif; /* Use Kanit font with fallback */
     padding: 10px 20px;
     background-color: #FFA500; /* Orange background */
-    color: white; /* White text */
+    color: white;              /* White text */
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -57,7 +64,9 @@ header {
     background-color: #FF8C00; /* Darker orange on hover */
 }
 
+
 .logout-button {
+    font-family: 'Kanit', Arial, sans-serif; /* Use Kanit font with fallback */
     background-color: #ff4d4d; /* สีพื้นหลัง */
     color: white; /* สีตัวอักษร */
     border: none; /* ไม่มีกรอบ */
@@ -80,7 +89,7 @@ main {
     display: grid; /* Use grid layout */
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive columns */
     gap: 20px; /* Space between products */
-    padding: 20px;
+    padding: 10px;
 }
 
 .product {

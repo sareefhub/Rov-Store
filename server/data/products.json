@@ -17,8 +17,9 @@
   },
   {
     "id": 2,
-    "image": "https://example.com/image-url.jpg",
-    "price": 500,
-    "description": "This is a description of the new item."
+    "image": "1729511243571-603939720-Rov.jpg",
+    "additionalImages": [
+      "1729511243574-247676957-Rov.jpg"
+    ]
   }
 ]

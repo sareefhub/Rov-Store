@@ -105,7 +105,7 @@ def admin_logout():
 def product_edit(product_id):
     return render_template('product_edit.html', product=product_id)
 
-@app.route('/product/add', methods=['POST'])
+@app.route('/product/add', methods=['GET', 'POST'])
 def product_add():
     return render_template('product_add.html')
 
