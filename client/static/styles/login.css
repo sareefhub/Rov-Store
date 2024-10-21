@@ -46,3 +46,27 @@ button {
 button:hover {
     background-color: #218838; /* เปลี่ยนสีเมื่อเลื่อนเมาส์ */
 }
+
+/* Styling for the form and container */
+.login-container {
+    width: 300px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.password-container {
+    position: relative; /* Relative positioning for the container */
+}
+
+.password-container input[type="password"] {
+    width: 100%;
+    padding-right: 40px; /* Add space for the eye icon */
+}
+
+.password-container i {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}

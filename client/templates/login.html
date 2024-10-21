@@ -6,6 +6,7 @@
     <title>Admin Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"> <!-- Add Bootstrap Icons -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -13,10 +14,13 @@
         <h1>Admin Login</h1>
         <form id="login-form" method="POST" action="/admin/login">
             <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
+            <div class="password-container">
+                <input type="password" name="password" placeholder="Password" required>
+                <i id="toggle-password" class="bi bi-eye-slash" style="cursor: pointer;"></i> <!-- Default is closed eye -->
+            </div>
             <button type="submit">Login</button>
         </form>
     </div>
-    <script src="{{ url_for('static', filename='scripts/login.js') }}"></script> <!-- Include the login.js script -->
+    <script src="{{ url_for('static', filename='scripts/login.js') }}"></script>
 </body>
 </html>

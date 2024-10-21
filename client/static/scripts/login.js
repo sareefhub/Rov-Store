@@ -1,11 +1,13 @@
-// client/static/scripts/login.js
 const loginForm = document.getElementById('login-form');
+const usernameInput = document.querySelector('input[name="username"]');
+const passwordInput = document.querySelector('input[name="password"]');
+const togglePassword = document.getElementById('toggle-password');
 
 loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    const username = document.querySelector('input[name="username"]').value;
-    const password = document.querySelector('input[name="password"]').value;
+    const username = usernameInput.value;
+    const password = passwordInput.value;
 
     fetch('http://localhost:3000/admin/login', {
         method: 'POST',
@@ -19,21 +21,58 @@ loginForm.addEventListener('submit', (event) => {
         if (data.token) {
             // Save token and username in local storage
             localStorage.setItem('jwt_token', data.token);
-            localStorage.setItem('username', username); // Store the username
-            sessionStorage.setItem('logged_in', 'true'); // Store login status
-            sessionStorage.setItem('username', username); // Store username
+            localStorage.setItem('username', username);
+            sessionStorage.setItem('logged_in', 'true');
+            sessionStorage.setItem('username', username);
             // Redirect or show success message
-            window.location.href = '/'; // หรือหน้าอื่นๆ
+            Swal.fire({
+                title: 'Login Successful!',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = '/';
+            });
         } else {
-            // Show error message
-            console.error(data.message);
+            // Show error message and clear both fields
+            Swal.fire({
+                title: 'Login Failed',
+                text: data.message,
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            }).then(() => {
+                // Clear both fields after the error
+                usernameInput.value = '';  // Clear username
+                passwordInput.value = '';  // Clear password
+            });
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'An error occurred while processing your request.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            // Clear both fields after the error
+            usernameInput.value = '';  // Clear username
+            passwordInput.value = '';  // Clear password
+        });
+    });
 });
 
-// Optionally, you can also display the stored username
-const storedUsername = localStorage.getItem('username');
-if (storedUsername) {
-    console.log(`Logged in as: ${storedUsername}`);
-}
+// Toggle password visibility
+togglePassword.addEventListener('click', () => {
+    // Toggle the type attribute of the password input
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+
+    // Toggle the icon class
+    if (type === 'text') {
+        togglePassword.classList.remove('bi-eye-slash');
+        togglePassword.classList.add('bi-eye');
+    } else {
+        togglePassword.classList.remove('bi-eye');
+        togglePassword.classList.add('bi-eye-slash');
+    }
+});
