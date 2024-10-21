@@ -4,6 +4,7 @@ if (sessionStorage.getItem('logged_in')) {
     document.getElementById('admin-username').textContent = sessionStorage.getItem('username'); // Set username
     document.getElementById('admin-username').style.display = 'inline'; // Show username
     document.getElementById('logout-form').style.display = 'inline'; // Show logout button
+    document.getElementById('add-product-button').style.display = 'inline';
 }
 
 // Fetch products from the server
