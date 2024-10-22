@@ -16,7 +16,7 @@ fetch('http://localhost:3000/products')
             const productDiv = document.createElement('div');
             productDiv.classList.add('product');
             productDiv.innerHTML = `
-                <img src="${product.image}" alt="Rov Account ${product.id}">
+                <img src="${product.image.startsWith('http') ? product.image : 'http://localhost:3000/uploads/' + product.image}" alt="Rov Account ${product.id}">
                 <h2>ราคา: ${product.price} บาท</h2>
                 <p>รายละเอียด: ${product.description}</p>
                 <a href="/product/${product.id}" class="details-button">ดูรายละเอียดเพิ่มเติม</a>
