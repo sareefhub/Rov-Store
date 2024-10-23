@@ -25,7 +25,7 @@ def config():
 
 # Helper function to create JWT token
 def create_jwt_token(username):
-    expiration = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
+    expiration = datetime.utcnow() + timedelta(hours=24)  # Token valid for 1 hour
     token = jwt.encode({'username': username, 'exp': expiration}, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return token
 
