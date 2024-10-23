@@ -8,6 +8,7 @@ label {
 input[type="text"],
 input[type="number"],
 textarea {
+    font-family: 'Kanit', Arial, sans-serif; /* Use Kanit font with fallback */
     width: calc(100% - 20px);
     padding: 10px;
     margin-top: 5px;
