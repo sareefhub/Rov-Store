@@ -7,19 +7,19 @@ from functools import wraps
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # เปลี่ยนเป็นรหัสที่ปลอดภัยกว่า
+app.secret_key = 'your_secret_key'  # Change to a more secure key
 
 # Secret key for JWT
 JWT_SECRET = 'your_jwt_secret_key'
 JWT_ALGORITHM = 'HS256'
 
-# URL ของเซิร์ฟเวอร์ Express
-EXPRESS_SERVER_URL = 'http://localhost:3000/products'  # เปลี่ยนถ้าจำเป็น
+# Express server URL
+EXPRESS_SERVER_URL = 'http://localhost:3000/products'  # Change if necessary
 
-# ผู้ใช้ Admin สำหรับการเข้าสู่ระบบ
+# Admin user credentials
 admin_user = {
     'username': 'admin',
-    'password': generate_password_hash('admin123')  # ใช้ hashing สำหรับรหัสผ่านจริง
+    'password': generate_password_hash('admin123')  # Use hashed password for security
 }
 
 # Helper function to create JWT token
@@ -55,12 +55,13 @@ def product_detail(product_id):
         return "Error fetching products", 500
     products = response.json()
     
+    # Fetch product details based on product_id
     product = next((p for p in products if p['id'] == product_id), None)
     if product:
         return render_template('product_detail.html', product=product)
     else:
         return "Product not found", 404
-    
+
 @app.route('/products')
 def get_products():
     response = requests.get(EXPRESS_SERVER_URL)
@@ -103,7 +104,17 @@ def admin_logout():
 
 @app.route('/product/edit/<int:product_id>', methods=['GET'])
 def product_edit(product_id):
-    return render_template('product_edit.html', product=product_id)
+    # Fetch product details for editing
+    response = requests.get(EXPRESS_SERVER_URL)
+    if response.status_code != 200:
+        return "Error fetching products", 500
+    products = response.json()
+    
+    product = next((p for p in products if p['id'] == product_id), None)
+    if product:
+        return render_template('product_edit.html', product=product)
+    else:
+        return "Product not found", 404
 
 @app.route('/product/add', methods=['GET', 'POST'])
 def product_add():

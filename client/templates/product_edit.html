@@ -6,6 +6,7 @@
     <title>Edit Product Details</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_detail.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_add.css') }}">
 </head>
 <body>
     <header>
@@ -18,15 +19,14 @@
             <p><strong>Price:</strong> {{ product.price }} บาท</p>
             <p><strong>Description:</strong> {{ product.description }}</p>
             <p><strong>Main Image:</strong></p>
-            <img src="{{ product.image }}" alt="Main Product Image" class="expandable-image">
+            <img src="http://localhost:3000/uploads/{{ product.image }}" alt="Main Product Image" class="expandable-image">
 
             <h3>Additional Images:</h3>
             <div class="additional-images">
                 {% if product.additionalImages %}
                     {% for image in product.additionalImages %}
                         <div class="image-item">
-                            <img src="{{ image }}" alt="Additional Product Image" class="expandable-image">
-                            <button type="button" class="remove-image-btn" data-image-index="{{ loop.index }}">Remove</button>
+                            <img src="http://localhost:3000/uploads/{{ image }}" alt="Additional Product Image" class="expandable-image">
                         </div>
                     {% endfor %}
                 {% else %}
@@ -37,28 +37,28 @@
             <h2>Edit Product Information:</h2>
             <form id="edit-product-form">
                 <label for="new-price">New Price:</label>
-                <input type="number" id="new-price" name="new-price" placeholder="Enter new price" required>
+                <input type="number" id="new-price" name="new-price" placeholder="Enter new price" value="{{ product.price }}" required>
                 <br>
 
                 <label for="new-description">New Description:</label>
-                <textarea id="new-description" name="new-description" placeholder="Enter new description" required></textarea>
+                <textarea id="new-description" name="new-description" placeholder="Enter new description" required>{{ product.description }}</textarea>
                 <br>
 
-                <label for="new-image">New Main Image URL:</label>
-                <input type="text" id="new-image" name="new-image" placeholder="Enter new main image URL">
+                <label for="new-mainImageUpload" class="file-upload-label">Upload New Main Image:</label>
+                <input type="file" id="new-mainImageUpload" accept="image/*" name="mainImage" class="file-upload-input">
+                <br>
+                <img id="new-mainImagePreview" src="" alt="New Main Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
                 <br>
 
-                <h3>Add New Additional Images:</h3>
-                <div id="new-additional-images">
-                    <input type="text" name="new-additionalImage1" placeholder="Enter new additional image URL">
-                </div>
-                <button type="button" id="add-image-btn">Add Another Image</button>
+                <h3>Upload New Additional Images:</h3>
+                <input type="file" id="new-additionalImagesUpload" accept="image/*" multiple name="additionalImages" class="file-upload-input">
+                <div id="new-additionalImagesPreview" class="image-preview-container"></div>
                 <br>
 
                 <button type="submit">Save Changes</button>
             </form>
 
-            <a href="/">Back to Home</a>
+            <a href="/" class="back-link">Back to Home</a>
         </div>
     </main>
 
@@ -72,24 +72,19 @@
             const productId = "{{ product.id }}";
             const token = localStorage.getItem('jwt_token'); // Admin token for authentication
 
-            const updatedProduct = {
-                price: document.getElementById('new-price').value || "{{ product.price }}",
-                description: document.getElementById('new-description').value || "{{ product.description }}",
-                image: document.getElementById('new-image').value || "{{ product.image }}",
-                additionalImages: Array.from(document.querySelectorAll('#new-additional-images input')).map(input => input.value)
-            };
+            // Create FormData for file uploads
+            const formData = new FormData(this); // Automatically captures all form fields
 
             fetch(`http://localhost:3000/admin/edit-item/${productId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(updatedProduct)
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
-                alert('Product updated successfully');
+                alert(data.message);
                 window.location.href = '/'; // Redirect to the home page after saving
             })
             .catch(error => {
@@ -97,39 +92,37 @@
             });
         });
 
-        // Add another image field dynamically
-        document.getElementById('add-image-btn').addEventListener('click', function() {
-            const additionalImagesContainer = document.getElementById('new-additional-images');
-            const newInput = document.createElement('input');
-            newInput.setAttribute('type', 'text');
-            newInput.setAttribute('name', `new-additionalImage${additionalImagesContainer.children.length + 1}`);
-            newInput.setAttribute('placeholder', 'Enter new additional image URL');
-            additionalImagesContainer.appendChild(newInput);
+        // Preview new main image upload
+        document.getElementById('new-mainImageUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('new-mainImagePreview');
+                img.src = e.target.result;
+                img.style.display = 'block'; // Show the image preview
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
         });
 
-        // Remove image functionality
-        const removeButtons = document.querySelectorAll('.remove-image-btn');
-        removeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const imageIndex = this.getAttribute('data-image-index');
-                const productId = "{{ product.id }}";
-                const token = localStorage.getItem('jwt_token');
+        // Preview additional images upload
+        document.getElementById('new-additionalImagesUpload').addEventListener('change', function(event) {
+            const selectedFiles = event.target.files;
+            const additionalImagesPreview = document.getElementById('new-additionalImagesPreview');
+            additionalImagesPreview.innerHTML = ''; // Clear previous previews
 
-                fetch(`http://localhost:3000/admin/remove-image/${productId}/${imageIndex}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert('Image removed successfully');
-                    location.reload(); // Reload the page to show the updated images
-                })
-                .catch(error => {
-                    console.error('Error removing image:', error);
-                });
+            // Display previews for selected additional images
+            Array.from(selectedFiles).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'New Additional Image Preview';
+                    img.classList.add('additional-image-preview');
+                    additionalImagesPreview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
             });
         });
     </script>
