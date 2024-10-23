@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_detail.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_add.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_add.css') }}">
 </head>
 <body>
     <header>
@@ -25,7 +26,7 @@
             <div class="additional-images">
                 {% if product.additionalImages %}
                     {% for image in product.additionalImages %}
-                        <img src="http://localhost:3000/uploads/{{ image }}" alt="Additional Product Image" class="expandable-image">
+                            <img src="http://localhost:3000/uploads/{{ image }}" alt="Additional Product Image" class="expandable-image">
                     {% endfor %}
                 {% else %}
                     <p>ไม่มีรูปภาพเพิ่มเติม</p>
@@ -50,13 +51,14 @@
                 <br>
 
                 <h3>อัพโหลดรูปภาพเพิ่มเติม :</h3>
-                <div id="additional-images">
+                <div id="additional-images-container">
                     <label for="new-additionalImagesUpload" class="file-upload-label">อัพโหลดรูปภาพเพิ่มเติม (เลือกไฟล์)</label>
                     <input type="file" id="new-additionalImagesUpload" accept="image/*" multiple name="additionalImages" class="file-upload-input">
                     <p id="imageCountMessage">คุณสามารถอัพโหลดรูปภาพเพิ่มเติมสูงสุด 25 รูป</p>
                     <p id="remainingImagesMessage"></p>
+                    <div id="additional-images" class="additional-images-preview"></div> <!-- Added this div for previews -->
                 </div>
-                <br>
+                <br>                
 
                 <button type="submit" class="save-button">บันทึก</button>
             </form>
@@ -72,14 +74,14 @@
     <script>
         document.getElementById('edit-product-form').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the default form submission
-
+    
             const productId = "{{ product.id }}"; // Get the product ID from the template
             const token = localStorage.getItem('jwt_token'); // Get the admin token
-
+    
             // Get values from the form
             const newPrice = document.getElementById('new-price').value;
             const newDescription = document.getElementById('new-description').value;
-
+    
             // Create the JSON payload
             const jsonPayload = {
                 price: newPrice,
@@ -87,19 +89,19 @@
                 image: '{{ product.image }}', // Set to existing image by default
                 additionalImages: [] // Placeholder for additional images filenames
             };
-
+    
             // Process main image upload
             const mainImageFile = document.getElementById('new-mainImageUpload').files[0];
             if (mainImageFile) {
                 jsonPayload.image = mainImageFile.name; // Update to the new main image filename
             }
-
+    
             // Process additional images upload
             const additionalImagesFiles = document.getElementById('new-additionalImagesUpload').files;
             for (let i = 0; i < additionalImagesFiles.length; i++) {
                 jsonPayload.additionalImages.push(additionalImagesFiles[i].name); // Store the filenames
             } 
-
+    
             // Send the JSON payload
             fetch(`${API_URL}/admin/edit-item/${productId}`, {
                 method: 'PUT',
@@ -118,50 +120,53 @@
                 console.error('Error updating product:', error);
             });
         });
-
-        // Preview new main image upload
+    
+        // Preview main image upload
         document.getElementById('new-mainImageUpload').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.getElementById('new-mainImagePreview');
-                img.src = e.target.result;
-                img.style.display = 'block'; // Show the image preview
-            }
-            if (file) {
-                reader.readAsDataURL(file);
+            const selectedFile = event.target.files[0];
+            const preview = document.getElementById('new-mainImagePreview');
+    
+            if (selectedFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result; // Set the preview source
+                    preview.style.display = 'block'; // Show the preview
+                }
+                reader.readAsDataURL(selectedFile);
+            } else {
+                preview.style.display = 'none'; // Hide the preview if no file selected
             }
         });
-
-        // Update remaining images message and display additional image previews
+    
+        // Preview additional images upload
         document.getElementById('new-additionalImagesUpload').addEventListener('change', function(event) {
             const selectedFiles = event.target.files;
+            const additionalImagesPreview = document.getElementById('additional-images');
+            additionalImagesPreview.innerHTML = ''; // Clear previous previews
+    
+            // Display previews for selected additional images
+            Array.from(selectedFiles).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img'); // Create an img element
+                    img.src = e.target.result;
+                    img.alt = 'New Additional Image Preview';
+                    img.classList.add('additional-image-preview'); // Add a class for styling
+                    additionalImagesPreview.appendChild(img); // Append the preview image
+                }
+                reader.readAsDataURL(file);
+            });
+    
+            // Update remaining images message
             const remainingImages = 25 - selectedFiles.length;
             const remainingImagesMessage = document.getElementById('remainingImagesMessage');
-
+    
             if (remainingImages < 0) {
                 remainingImagesMessage.textContent = 'คุณได้อัพโหลดรูป 25 ภาพแล้ว';
             } else {
                 remainingImagesMessage.textContent = `คุณสามารถอัพโหลดรูปภาพเพิ่มเติมได้อีก ${remainingImages} รูป`;
             }
-
-            // Clear previous previews
-            const additionalImagesPreview = document.getElementById('additional-images-preview');
-            additionalImagesPreview.innerHTML = '';
-
-            // Display previews for selected additional images
-            Array.from(selectedFiles).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.alt = 'Additional Image Preview';
-                    img.classList.add('additional-image-preview');
-                    additionalImagesPreview.appendChild(img);
-                }
-                reader.readAsDataURL(file);
-            });
         });
-    </script>
+    </script>    
 </body>
 </html>
