@@ -120,23 +120,49 @@ app.post('/admin/add-item', verifyToken, upload.fields([
 app.put('/admin/edit-item/:id', verifyToken, upload.fields([{ name: 'mainImage' }, { name: 'additionalImages' }]), (req, res) => {
     const { id } = req.params;
     const { 'new-price': price, 'new-description': description } = req.body;
-    
+
+    // Find the product being edited
+    const productIndex = products.findIndex((item) => item.id === parseInt(id));
+
+    if (productIndex === -1) {
+        return res.status(404).json({ message: 'Product not found!' });
+    }
+
+    // Get the current product for image deletion
+    const currentProduct = products[productIndex];
+
     // Check for uploaded files
     const mainImage = req.files['mainImage'] ? req.files['mainImage'][0].filename : undefined;
     const additionalImages = req.files['additionalImages'] ? req.files['additionalImages'].map(file => file.filename) : [];
 
-    products = products.map((item) => {
-        if (item.id === parseInt(id)) {
-            return { 
-                ...item, 
-                price: price || item.price, // Update only if a new value is provided
-                description: description || item.description,
-                image: mainImage || item.image,
-                additionalImages: [...item.additionalImages, ...additionalImages] // Append new additional images
-            };
-        }
-        return item;
+    // Delete old main image if a new one is uploaded
+    if (mainImage && currentProduct.image) {
+        const oldMainImagePath = path.join(__dirname, '..', 'uploads', currentProduct.image);
+        fs.unlink(oldMainImagePath, (err) => {
+            if (err) {
+                console.error('Error deleting old main image:', err);
+            }
+        });
+    }
+
+    // Delete old additional images
+    currentProduct.additionalImages.forEach(oldImage => {
+        const oldImagePath = path.join(__dirname, '..', 'uploads', oldImage);
+        fs.unlink(oldImagePath, (err) => {
+            if (err) {
+                console.error('Error deleting old additional image:', err);
+            }
+        });
     });
+
+    // Update the product data
+    products[productIndex] = {
+        ...currentProduct,
+        price: price || currentProduct.price, // Update only if a new value is provided
+        description: description || currentProduct.description,
+        image: mainImage || currentProduct.image, // Replace the main image
+        additionalImages: additionalImages // Replace the additional images with the new ones
+    };
 
     updateProductsFile(); // Update the JSON file
     res.json({ message: 'Product updated successfully!' });
