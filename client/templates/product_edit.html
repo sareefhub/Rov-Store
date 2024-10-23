@@ -33,7 +33,7 @@
             </div>
 
             <h2>แก้ไขข้อมูล :</h2>
-            <form id="edit-product-form">
+            <form id="edit-product-form" enctype="multipart/form-data">
                 <label for="new-price">ราคา :</label>
                 <input type="number" id="new-price" name="new-price" placeholder="Enter new price" value="{{ product.price }}">
                 <br>
@@ -80,35 +80,32 @@
             // Get values from the form
             const newPrice = document.getElementById('new-price').value || "{{ product.price }}"; // Use existing price if not new
             const newDescription = document.getElementById('new-description').value || "{{ product.description }}"; // Use existing description if not new
-    
-            // Create the JSON payload
-            const jsonPayload = {
-                price: newPrice,
-                description: newDescription,
-                image: '{{ product.image }}', // Set to existing image by default
-                additionalImages: [] // Placeholder for additional images filenames
-            };
-    
+
+            // Create a FormData object for uploading images
+            const formData = new FormData();
+            formData.append('price', newPrice);
+            formData.append('description', newDescription);
+            formData.append('existingImage', '{{ product.image }}'); // Set to existing image by default
+
             // Process main image upload
             const mainImageFile = document.getElementById('new-mainImageUpload').files[0];
             if (mainImageFile) {
-                jsonPayload.image = mainImageFile.name; // Update to the new main image filename
+                formData.append('mainImage', mainImageFile); // Add the new main image
             }
     
             // Process additional images upload
             const additionalImagesFiles = document.getElementById('new-additionalImagesUpload').files;
             for (let i = 0; i < additionalImagesFiles.length; i++) {
-                jsonPayload.additionalImages.push(additionalImagesFiles[i].name); // Store the filenames
+                formData.append('additionalImages', additionalImagesFiles[i]); // Add each additional image
             } 
     
-            // Send the JSON payload
+            // Send the FormData to the server
             fetch(`${API_URL}/admin/edit-item/${productId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(jsonPayload) // Stringify the JSON object
+                body: formData // Send the FormData object
             })
             .then(response => response.json())
             .then(data => {
