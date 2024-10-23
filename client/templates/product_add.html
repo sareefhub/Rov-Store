@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_detail.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/product_add.css') }}">
+    <!-- Include SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
     <header>
@@ -34,7 +36,7 @@
                 <h3>อัพโหลดรูปภาพเพิ่มเติม</h3>
                 <div id="additional-images">
                     <label for="additionalImagesUpload" class="file-upload-label">อัพโหลดรูปภาพเพิ่มเติม (เลือกไฟล์)</label>
-                    <input type="file" id="additionalImagesUpload" accept="image/*" multiple required class="file-upload-input">
+                    <input type="file" id="additionalImagesUpload" accept="image/*" multiple class="file-upload-input">
                     <p id="imageCountMessage">คุณสามารถอัพโหลดรูปภาพเพิ่มเติมสูงสุด 25 รูป</p>
                     <p id="remainingImagesMessage"></p>
                     <div id="additionalImagesPreview" class="image-preview-container"></div>
@@ -51,6 +53,8 @@
         <p>&copy; 2024 Rov Store. All rights reserved.</p>
     </footer>
 
+    <!-- Include SweetAlert JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Add product form submission
         document.getElementById('add-product-form').addEventListener('submit', function(event) {
@@ -78,7 +82,11 @@
             // Collect additional images and generate structured filenames
             const additionalImageFiles = document.getElementById('additionalImagesUpload').files;
             if (additionalImageFiles.length > 25) {
-                alert('You can only upload a maximum of 25 additional images.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'You can only upload a maximum of 25 additional images.'
+                });
                 return;
             }
 
@@ -115,12 +123,21 @@
                 return response.json();
             })
             .then(data => {
-                alert('Product added successfully!');
-                window.location.href = '/'; // Redirect to home page after adding
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Product added successfully!'
+                }).then(() => {
+                    window.location.href = '/'; // Redirect to home page after adding
+                });
             })
             .catch(error => {
                 console.error('Error adding product:', error);
-                alert('Error adding product: ' + error.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Error adding product: ' + error.message
+                });
             });
         });
 
