@@ -15,13 +15,13 @@
 
     <main>
         <div class="product-detail">
-            <h2>Current Information:</h2>
-            <p><strong>Price:</strong> {{ product.price }} บาท</p>
-            <p><strong>Description:</strong> {{ product.description }}</p>
-            <p><strong>Main Image:</strong></p>
+            <h2>ข้อมูลปัจจุบัน :</h2>
+            <p><strong>ราคา :</strong> {{ product.price }} บาท</p>
+            <p><strong>รายละเอียด :</strong> {{ product.description }}</p>
+            <h3>รูปภาพหลัก :</h3>
             <img src="http://localhost:3000/uploads/{{ product.image }}" alt="Main Product Image" class="expandable-image">
 
-            <h3>Additional Images:</h3>
+            <h3>รูปภาพเพิ่มเติม :</h3>
             <div class="additional-images">
                 {% if product.additionalImages %}
                     {% for image in product.additionalImages %}
@@ -30,40 +30,41 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p>No additional images available</p>
+                    <p>ไม่มีรูปภาพเพิ่มเติม</p>
                 {% endif %}
             </div>
 
-            <h2>Edit Product Information:</h2>
+            <h2>แก้ไขข้อมูล :</h2>
             <form id="edit-product-form">
-                <label for="new-price">New Price:</label>
+                <label for="new-price">ราคา :</label>
                 <input type="number" id="new-price" name="new-price" placeholder="Enter new price" value="{{ product.price }}" required>
                 <br>
 
-                <label for="new-description">New Description:</label>
+                <label for="new-description">รายละเอียด :</label>
                 <textarea id="new-description" name="new-description" placeholder="Enter new description" required>{{ product.description }}</textarea>
                 <br>
 
-                <label for="new-mainImageUpload" class="file-upload-label">Upload New Main Image:</label>
+                <h3>อัพโหลดรูปภาพหลัก :</h3>
+                <label for="new-mainImageUpload" class="file-upload-label">อัพโหลดรูปภาพหลัก (เลือกไฟล์)</label>
                 <input type="file" id="new-mainImageUpload" accept="image/*" name="mainImage" class="file-upload-input">
                 <br>
                 <img id="new-mainImagePreview" src="" alt="New Main Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
                 <br>
 
-                <h3>Upload New Additional Images (max 25):</h3>
+                <h3>อัพโหลดรูปภาพเพิ่มเติม :</h3>
                 <div id="additional-images">
-                    <label for="new-additionalImagesUpload" class="file-upload-label">Upload Additional Images:</label>
+                    <label for="new-additionalImagesUpload" class="file-upload-label">อัพโหลดรูปภาพเพิ่มเติม (เลือกไฟล์)</label>
                     <input type="file" id="new-additionalImagesUpload" accept="image/*" multiple name="additionalImages" class="file-upload-input">
-                    <p id="imageCountMessage">You can upload a maximum of 25 images.</p>
+                    <p id="imageCountMessage">คุณสามารถอัพโหลดรูปภาพเพิ่มเติมสูงสุด 25 รูป</p>
                     <p id="remainingImagesMessage"></p>
                     <div id="new-additionalImagesPreview" class="image-preview-container"></div>
                 </div>
                 <br>
 
-                <button type="submit">Save Changes</button>
+                <button type="submit">บันทึก</button>
             </form>
 
-            <a href="/" class="back-link">Back to Home</a>
+            <a href="/" class="back-link">กลับสู่หน้าหลัก</a>
         </div>
     </main>
 
@@ -135,9 +136,9 @@
             const remainingImagesMessage = document.getElementById('remainingImagesMessage');
 
             if (remainingImages < 0) {
-                remainingImagesMessage.textContent = 'You have exceeded the limit of 25 images.';
+                remainingImagesMessage.textContent = 'คุณได้อัพโหลดรูป 25 ภาพแล้ว';
             } else {
-                remainingImagesMessage.textContent = `You can still upload ${remainingImages} more images.`;
+                remainingImagesMessage.textContent = `คุณสามารถอัพโหลดรูปภาพเพิ่มเติมได้อีก ${remainingImages} รูป`;
             }
         });
     </script>
