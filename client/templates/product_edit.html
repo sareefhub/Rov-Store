@@ -50,9 +50,14 @@
                 <img id="new-mainImagePreview" src="" alt="New Main Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
                 <br>
 
-                <h3>Upload New Additional Images:</h3>
-                <input type="file" id="new-additionalImagesUpload" accept="image/*" multiple name="additionalImages" class="file-upload-input">
-                <div id="new-additionalImagesPreview" class="image-preview-container"></div>
+                <h3>Upload New Additional Images (max 25):</h3>
+                <div id="additional-images">
+                    <label for="new-additionalImagesUpload" class="file-upload-label">Upload Additional Images:</label>
+                    <input type="file" id="new-additionalImagesUpload" accept="image/*" multiple name="additionalImages" class="file-upload-input">
+                    <p id="imageCountMessage">You can upload a maximum of 25 images.</p>
+                    <p id="remainingImagesMessage"></p>
+                    <div id="new-additionalImagesPreview" class="image-preview-container"></div>
+                </div>
                 <br>
 
                 <button type="submit">Save Changes</button>
@@ -124,6 +129,16 @@
                 }
                 reader.readAsDataURL(file);
             });
+
+            // Update remaining images message
+            const remainingImages = 25 - selectedFiles.length;
+            const remainingImagesMessage = document.getElementById('remainingImagesMessage');
+
+            if (remainingImages < 0) {
+                remainingImagesMessage.textContent = 'You have exceeded the limit of 25 images.';
+            } else {
+                remainingImagesMessage.textContent = `You can still upload ${remainingImages} more images.`;
+            }
         });
     </script>
 </body>
