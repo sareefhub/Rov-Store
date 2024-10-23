@@ -110,19 +110,30 @@ def admin_logout():
     session.pop('logged_in', None)  # Remove the logged-in status from the session
     return redirect(url_for('admin_login'))  # Redirect to the login page
 
-@app.route('/product/edit/<int:product_id>', methods=['GET'])
+@app.route('/product/edit/<int:product_id>', methods=['GET', 'PUT'])
 def product_edit(product_id):
-    # Fetch product details for editing
-    response = requests.get(f'{API_PREFIX}/products')
-    if response.status_code != 200:
-        return "Error fetching products", 500
-    products = response.json()
+    if request.method == 'GET':
+        # Fetch product details for editing
+        response = requests.get(f'{API_PREFIX}/products')
+        if response.status_code != 200:
+            return "Error fetching products", 500
+        products = response.json()
+        
+        product = next((p for p in products if p['id'] == product_id), None)
+        if product:
+            return render_template('product_edit.html', product=product)
+        else:
+            return "Product not found", 404
     
-    product = next((p for p in products if p['id'] == product_id), None)
-    if product:
-        return render_template('product_edit.html', product=product)
-    else:
-        return "Product not found", 404
+    elif request.method == 'PUT':
+        # Update product details
+        updated_product_data = request.json  # Assuming the data is sent as JSON
+        
+        response = requests.put(f'{API_PREFIX}/products/{product_id}', json=updated_product_data)
+        if response.status_code == 200:
+            return "Product updated successfully", 200
+        else:
+            return "Error updating product", 500
 
 @app.route('/product/add', methods=['GET', 'POST'])
 def product_add():
