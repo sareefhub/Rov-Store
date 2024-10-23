@@ -104,7 +104,7 @@ app.post('/admin/add-item', verifyToken, upload.fields([
         additionalImages: []
     };
 
-    // เก็บชื่อไฟล์ของภาพเพิ่มเติม
+    // Store additional image filenames
     for (let i = 1; i <= 25; i++) {
         if (req.files[`additionalImageFile${i}`]) {
             newItem.additionalImages.push(...req.files[`additionalImageFile${i}`].map(file => file.filename));
@@ -130,9 +130,59 @@ app.put('/admin/edit-item/:id', verifyToken, (req, res) => {
 app.delete('/admin/delete-item/:id', verifyToken, (req, res) => {
     const { id } = req.params;
 
-    products = products.filter((item) => item.id !== parseInt(id));
+    // Find the product by ID
+    const productIndex = products.findIndex((item) => item.id === parseInt(id));
+
+    if (productIndex === -1) {
+        return res.status(404).json({ message: 'Product not found!' });
+    }
+
+    // Get the image file name and path
+    const product = products[productIndex];
+    const imagePath = path.join(__dirname, '..', 'uploads', product.image); // Main image path
+
+    // Delete the product from the array
+    products.splice(productIndex, 1); // Remove the product from the array
     updateProductsFile(); // Update the JSON file
-    res.json({ message: 'Product deleted successfully!' });
+
+    // Delete the main image file from the uploads directory
+    fs.unlink(imagePath, (err) => {
+        if (err) {
+            console.error('Error deleting image:', err);
+            return res.status(500).json({ message: 'Product deleted, but failed to delete the image.' });
+        }
+
+        // Delete additional images if they exist
+        product.additionalImages.forEach(additionalImage => {
+            const additionalImagePath = path.join(__dirname, '..', 'uploads', additionalImage);
+            fs.unlink(additionalImagePath, (err) => {
+                if (err) {
+                    console.error('Error deleting additional image:', err);
+                }
+            });
+        });
+
+        // Check if the products array is empty and clean up uploads folder if necessary
+        if (products.length === 0) {
+            // Optionally, delete any leftover images in uploads if products is empty
+            fs.readdir(path.join(__dirname, '..', 'uploads'), (err, files) => {
+                if (err) {
+                    console.error('Error reading uploads directory:', err);
+                } else {
+                    files.forEach(file => {
+                        const filePath = path.join(__dirname, '..', 'uploads', file);
+                        fs.unlink(filePath, (err) => {
+                            if (err) {
+                                console.error('Error deleting leftover image:', err);
+                            }
+                        });
+                    });
+                }
+            });
+        }
+
+        res.json({ message: 'Product and image deleted successfully!' });
+    });
 });
 
 // Start the server

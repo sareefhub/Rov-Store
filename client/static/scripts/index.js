@@ -8,28 +8,34 @@ if (sessionStorage.getItem('logged_in')) {
 }
 
 // Fetch products from the server
-fetch('http://localhost:3000/products')
-    .then(response => response.json())
-    .then(products => {
-        const productList = document.getElementById('product-list');
-        products.forEach(product => {
-            const productDiv = document.createElement('div');
-            productDiv.classList.add('product');
-            productDiv.innerHTML = `
-                <img src="${product.image.startsWith('http') ? product.image : 'http://localhost:3000/uploads/' + product.image}" alt="Rov Account ${product.id}">
-                <h2>ราคา: ${product.price} บาท</h2>
-                <p>รายละเอียด: ${product.description}</p>
-                <a href="/product/${product.id}" class="details-button">ดูรายละเอียดเพิ่มเติม</a>
-                ${sessionStorage.getItem('logged_in') ? `
-                    <div class="button-group">
-                        <button class="edit-button" onclick="editProduct(${product.id})">แก้ไข</button>
-                        <button class="delete-button" onclick="confirmDelete(${product.id})">ลบ</button>
-                    </div>` : ''}
-            `;
-            productList.appendChild(productDiv);
-        });
-    })
-    .catch(error => console.error('Error fetching products:', error));
+fetchProducts();
+
+// Function to fetch products
+function fetchProducts() {
+    fetch('http://localhost:3000/products')
+        .then(response => response.json())
+        .then(products => {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = ''; // Clear existing products
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.classList.add('product');
+                productDiv.innerHTML = `
+                    <img src="${product.image.startsWith('http') ? product.image : 'http://localhost:3000/uploads/' + product.image}" alt="Rov Account ${product.id}">
+                    <h2>ราคา: ${product.price} บาท</h2>
+                    <p>รายละเอียด: ${product.description}</p>
+                    <a href="/product/${product.id}" class="details-button">ดูรายละเอียดเพิ่มเติม</a>
+                    ${sessionStorage.getItem('logged_in') ? `
+                        <div class="button-group">
+                            <button class="edit-button" onclick="editProduct(${product.id})">แก้ไข</button>
+                            <button class="delete-button" onclick="confirmDelete(${product.id})">ลบ</button>
+                        </div>` : ''}
+                `;
+                productList.appendChild(productDiv);
+            });
+        })
+        .catch(error => console.error('Error fetching products:', error));
+}
 
 // Function to handle edit product
 function editProduct(productId) {
@@ -48,12 +54,21 @@ function confirmDelete(productId) {
         confirmButtonText: 'ใช่'
     }).then((result) => {
         if (result.isConfirmed) {
+            // Retrieve the JWT token from local storage
+            const token = localStorage.getItem('jwt_token');
+
             fetch(`http://localhost:3000/admin/delete-item/${productId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Include the JWT token
+                    'Content-Type': 'application/json' // Set content type
+                }
             })
             .then(response => {
                 if (response.ok) {
                     Swal.fire('Deleted!', 'สินค้านี้ถูกลบเรียบร้อยแล้ว.', 'success');
+                    // Refresh the product list
+                    fetchProducts();
                 } else {
                     Swal.fire('Error!', 'ไม่สามารถลบสินค้าได้.', 'error');
                 }
