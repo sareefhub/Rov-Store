@@ -64,7 +64,6 @@ header {
     background-color: #FF8C00; /* Darker orange on hover */
 }
 
-
 .logout-button {
     font-family: 'Kanit', Arial, sans-serif; /* Use Kanit font with fallback */
     background-color: #ff4d4d; /* สีพื้นหลัง */
@@ -104,7 +103,9 @@ main {
 }
 
 .product img {
-    max-width: 100%;
+    max-width: 100%; 
+    height: 200px; /* กำหนดความสูงของรูปภาพให้คงที่ */
+    object-fit: cover; /* ตัดส่วนที่เกินจากขนาดเพื่อให้พอดี */
     border-radius: 10px;
     margin-bottom: 15px;
 }
