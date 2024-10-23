@@ -116,12 +116,28 @@ app.post('/admin/add-item', verifyToken, upload.fields([
     res.status(201).json({ message: 'Product added successfully!', newItem });
 });
 
-// Edit item (requires JWT token)
-app.put('/admin/edit-item/:id', verifyToken, (req, res) => {
+// Edit item route with multer middleware
+app.put('/admin/edit-item/:id', verifyToken, upload.fields([{ name: 'mainImage' }, { name: 'additionalImages' }]), (req, res) => {
     const { id } = req.params;
-    const updatedItem = req.body;
+    const { 'new-price': price, 'new-description': description } = req.body;
+    
+    // Check for uploaded files
+    const mainImage = req.files['mainImage'] ? req.files['mainImage'][0].filename : undefined;
+    const additionalImages = req.files['additionalImages'] ? req.files['additionalImages'].map(file => file.filename) : [];
 
-    products = products.map((item) => (item.id === parseInt(id) ? { ...item, ...updatedItem } : item));
+    products = products.map((item) => {
+        if (item.id === parseInt(id)) {
+            return { 
+                ...item, 
+                price: price || item.price, // Update only if a new value is provided
+                description: description || item.description,
+                image: mainImage || item.image,
+                additionalImages: [...item.additionalImages, ...additionalImages] // Append new additional images
+            };
+        }
+        return item;
+    });
+
     updateProductsFile(); // Update the JSON file
     res.json({ message: 'Product updated successfully!' });
 });
