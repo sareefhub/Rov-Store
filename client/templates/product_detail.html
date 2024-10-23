@@ -1,4 +1,3 @@
-<!-- product_detail.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,13 +19,13 @@
             <p>รหัสสินค้า: {{ product.id }}</p>
 
             <h3>รูปภาพหลัก:</h3>
-            <img src="{{ product.image }}" alt="Main Product Image" class="expandable-image">
+            <img src="http://localhost:3000/uploads/{{ product.image }}" alt="Main Product Image" class="expandable-image">
 
             <h3>รูปภาพเพิ่มเติม:</h3>
             <div class="additional-images">
                 {% if product.additionalImages %}
                     {% for image in product.additionalImages %}
-                        <img src="{{ image }}" alt="Additional Product Image" class="expandable-image">
+                        <img src="http://localhost:3000/uploads/{{ image }}" alt="Additional Product Image" class="expandable-image">
                     {% endfor %}
                 {% else %}
                     <p>ไม่มีรูปภาพเพิ่มเติม</p>
