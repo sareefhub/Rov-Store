@@ -116,56 +116,53 @@ app.post('/admin/add-item', verifyToken, upload.fields([
     res.status(201).json({ message: 'Product added successfully!', newItem });
 });
 
-// Edit item route with multer middleware
-app.put('/admin/edit-item/:id', verifyToken, upload.fields([{ name: 'mainImage' }, { name: 'additionalImages' }]), (req, res) => {
+app.put('/admin/edit-item/:id', upload.fields([{ name: 'mainImage' }, { name: 'additionalImages' }]), verifyToken, (req, res) => {
     const { id } = req.params;
-    const { 'new-price': price, 'new-description': description } = req.body;
+    const updatedItem = req.body;
 
-    // Find the product being edited
-    const productIndex = products.findIndex((item) => item.id === parseInt(id));
-
+    const productIndex = products.findIndex(item => item.id === parseInt(id));
+    
     if (productIndex === -1) {
         return res.status(404).json({ message: 'Product not found!' });
     }
 
-    // Get the current product for image deletion
-    const currentProduct = products[productIndex];
+    const oldProduct = products[productIndex];
 
-    // Check for uploaded files
-    const mainImage = req.files['mainImage'] ? req.files['mainImage'][0].filename : undefined;
-    const additionalImages = req.files['additionalImages'] ? req.files['additionalImages'].map(file => file.filename) : [];
+    // Replace old product data with updated data
+    products[productIndex] = { ...oldProduct, ...updatedItem };
 
-    // Delete old main image if a new one is uploaded
-    if (mainImage && currentProduct.image) {
-        const oldMainImagePath = path.join(__dirname, '..', 'uploads', currentProduct.image);
-        fs.unlink(oldMainImagePath, (err) => {
-            if (err) {
-                console.error('Error deleting old main image:', err);
+    if (req.files) {
+        // Handle main image upload
+        if (req.files.mainImage && req.files.mainImage.length > 0) {
+            if (oldProduct.mainImage) {
+                // Delete old main image
+                try {
+                    fs.unlinkSync(path.join(__dirname, 'uploads', oldProduct.mainImage));
+                } catch (err) {
+                    console.error(`Error deleting old main image: ${err.message}`);
+                }
             }
-        });
+            // Update mainImage with the new file
+            products[productIndex].mainImage = req.files.mainImage[0].filename;
+        }
+
+        // Handle additional images upload
+        if (req.files.additionalImages) {
+            // Delete old additional images
+            oldProduct.additionalImages.forEach(image => {
+                try {
+                    fs.unlinkSync(path.join(__dirname, 'uploads', image));
+                } catch (err) {
+                    console.error(`Error deleting old additional image: ${err.message}`);
+                }
+            });
+            // Update additionalImages with the new files
+            products[productIndex].additionalImages = req.files.additionalImages.map(file => file.filename);
+        }
     }
 
-    // Delete old additional images
-    currentProduct.additionalImages.forEach(oldImage => {
-        const oldImagePath = path.join(__dirname, '..', 'uploads', oldImage);
-        fs.unlink(oldImagePath, (err) => {
-            if (err) {
-                console.error('Error deleting old additional image:', err);
-            }
-        });
-    });
-
-    // Update the product data
-    products[productIndex] = {
-        ...currentProduct,
-        price: price || currentProduct.price, // Update only if a new value is provided
-        description: description || currentProduct.description,
-        image: mainImage || currentProduct.image, // Replace the main image
-        additionalImages: additionalImages // Replace the additional images with the new ones
-    };
-
-    updateProductsFile(); // Update the JSON file
-    res.json({ message: 'Product updated successfully!' });
+    updateProductsFile(); 
+    res.json({ message: 'Product updated successfully!', product: products[productIndex] });
 });
 
 // Delete item (requires JWT token)

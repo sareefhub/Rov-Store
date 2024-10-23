@@ -170,6 +170,22 @@ main {
     background-color: #c82333; /* สีแดงเข้มเมื่อเลื่อนเมาส์ */
 }
 
+.save-button {
+    font-family: 'Kanit', Arial, sans-serif; /* Use Kanit font with fallback */
+    font-size: 16px; /* ขนาดฟอนต์ */
+    font-weight: bold; /* ความหนาของฟอนต์ */
+    padding: 10px 20px; /* ระยะห่างภายในปุ่ม */
+    color: #fff; /* สีของข้อความ */
+    background-color: #007BFF; /* สีพื้นหลัง */
+    border: none; /* ไม่มีขอบ */
+    border-radius: 5px; /* มุมโค้งของปุ่ม */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ไปที่ปุ่ม */
+}
+
+.save-button:hover {
+    background-color: #0056b3; /* เปลี่ยนสีเมื่อชี้ไปที่ปุ่ม */
+}
+
 footer {
     text-align: center;
     padding: 5px; /* ปรับ padding เพื่อลดความสูง */
