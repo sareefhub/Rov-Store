@@ -16,12 +16,6 @@ JWT_ALGORITHM = 'HS256'
 # Express server URL
 EXPRESS_SERVER_URL = 'http://localhost:3000/products'  # Change if necessary
 
-# Admin user credentials
-admin_user = {
-    'username': 'admin',
-    'password': generate_password_hash('admin123')  # Use hashed password for security
-}
-
 # Helper function to create JWT token
 def create_jwt_token(username):
     expiration = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
@@ -74,27 +68,34 @@ def admin_login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username == admin_user['username'] and check_password_hash(admin_user['password'], password):
-            session['logged_in'] = True  # Set logged in status
-            session['username'] = username  # Store username in session
-            token = create_jwt_token(username)
-            session['token'] = token  # Store token in session
+        # Fetch admin user credentials from the Express server
+        response = requests.get('http://localhost:3000/admin/user')  # Ensure this endpoint provides the correct credentials
+        if response.status_code == 200:
+            admin_user = response.json()  # Assuming the response is in the format {'username': 'admin', 'password': 'hashed_password'}
 
-            # Fetch admin user information from the Express server
-            headers = {'Authorization': f'Bearer {token}'}
-            response = requests.get('http://localhost:3000/admin/user', headers=headers)
+            if username == admin_user['username'] and check_password_hash(admin_user['password'], password):
+                session['logged_in'] = True  # Set logged in status
+                session['username'] = username  # Store username in session
+                token = create_jwt_token(username)
+                session['token'] = token  # Store token in session
 
-            if response.status_code == 200:
-                admin_user_data = response.json()  # Get the admin user data
-                return jsonify({
-                    "token": token,
-                    "message": "Login successful!",
-                    "admin_user": admin_user_data  # Include admin user data in the response
-                }), 200
+                # Fetch admin user information from the Express server
+                headers = {'Authorization': f'Bearer {token}'}
+                response = requests.get('http://localhost:3000/admin/user', headers=headers)
+
+                if response.status_code == 200:
+                    admin_user_data = response.json()  # Get the admin user data
+                    return jsonify({
+                        "token": token,
+                        "message": "Login successful!",
+                        "admin_user": admin_user_data  # Include admin user data in the response
+                    }), 200
+                else:
+                    return jsonify({"message": "Login successful, but failed to fetch admin user data!"}), 200
             else:
-                return jsonify({"message": "Login successful, but failed to fetch admin user data!"}), 200
+                return jsonify({"message": "Login failed!"}), 401
         else:
-            return jsonify({"message": "Login failed!"}), 401
+            return jsonify({"message": "Error fetching admin user credentials!"}), 500
     return render_template('login.html')
 
 @app.route('/admin/logout', methods=['POST'])
