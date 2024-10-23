@@ -13,8 +13,15 @@ app.secret_key = 'your_secret_key'  # Change to a more secure key
 JWT_SECRET = 'your_jwt_secret_key'
 JWT_ALGORITHM = 'HS256'
 
-# Express server URL
-EXPRESS_SERVER_URL = 'http://localhost:3000/products'  # Change if necessary
+# Set Express server URL based on environment
+if os.environ.get('FLASK_ENV') == 'development':
+    API_PREFIX = 'http://localhost:3000'
+else:
+    API_PREFIX = 'http://localhost:3000'  # Change to your production URL
+
+@app.route('/config.js')
+def config():
+    return f"const API_URL = '{API_PREFIX}';"
 
 # Helper function to create JWT token
 def create_jwt_token(username):
@@ -44,7 +51,7 @@ def home():
 
 @app.route('/product/<int:product_id>')
 def product_detail(product_id):
-    response = requests.get(EXPRESS_SERVER_URL)
+    response = requests.get(f'{API_PREFIX}/products')
     if response.status_code != 200:
         return "Error fetching products", 500
     products = response.json()
@@ -58,7 +65,7 @@ def product_detail(product_id):
 
 @app.route('/products')
 def get_products():
-    response = requests.get(EXPRESS_SERVER_URL)
+    response = requests.get(f'{API_PREFIX}/products')
     products = response.json()
     return jsonify(products)
 
@@ -69,7 +76,7 @@ def admin_login():
         password = request.form.get('password')
 
         # Fetch admin user credentials from the Express server
-        response = requests.get('http://localhost:3000/admin/user')  # Ensure this endpoint provides the correct credentials
+        response = requests.get(f'{API_PREFIX}/admin/user')  # Ensure this endpoint provides the correct credentials
         if response.status_code == 200:
             admin_user = response.json()  # Assuming the response is in the format {'username': 'admin', 'password': 'hashed_password'}
 
@@ -81,7 +88,7 @@ def admin_login():
 
                 # Fetch admin user information from the Express server
                 headers = {'Authorization': f'Bearer {token}'}
-                response = requests.get('http://localhost:3000/admin/user', headers=headers)
+                response = requests.get(f'{API_PREFIX}/admin/user', headers=headers)
 
                 if response.status_code == 200:
                     admin_user_data = response.json()  # Get the admin user data
@@ -106,7 +113,7 @@ def admin_logout():
 @app.route('/product/edit/<int:product_id>', methods=['GET'])
 def product_edit(product_id):
     # Fetch product details for editing
-    response = requests.get(EXPRESS_SERVER_URL)
+    response = requests.get(f'{API_PREFIX}/products')
     if response.status_code != 200:
         return "Error fetching products", 500
     products = response.json()

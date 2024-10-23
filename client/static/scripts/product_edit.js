@@ -6,7 +6,7 @@ document.getElementById('edit-product-form').addEventListener('submit', function
     // Create FormData for file uploads
     const formData = new FormData(this); // Automatically captures all form fields
 
-    fetch(`http://localhost:3000/admin/edit-item/${productId}`, {
+    fetch(`${API_URL}/admin/edit-item/${productId}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`

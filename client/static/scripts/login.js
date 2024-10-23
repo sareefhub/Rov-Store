@@ -9,7 +9,7 @@ loginForm.addEventListener('submit', (event) => {
     const username = usernameInput.value;
     const password = passwordInput.value;
 
-    fetch('http://localhost:3000/admin/login', {
+    fetch(`${API_URL}/admin/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

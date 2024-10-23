@@ -12,7 +12,7 @@ fetchProducts();
 
 // Function to fetch products
 function fetchProducts() {
-    fetch('http://localhost:3000/products')
+    fetch(`${API_URL}/products`)
         .then(response => response.json())
         .then(products => {
             const productList = document.getElementById('product-list');
@@ -21,7 +21,7 @@ function fetchProducts() {
                 const productDiv = document.createElement('div');
                 productDiv.classList.add('product');
                 productDiv.innerHTML = `
-                    <img src="${product.image.startsWith('http') ? product.image : 'http://localhost:3000/uploads/' + product.image}" alt="Rov Account ${product.id}">
+                    <img src="${product.image.startsWith('http') ? product.image : `${API_URL}/uploads/` + product.image}" alt="Rov Account ${product.id}">
                     <h2>ราคา: ${product.price} บาท</h2>
                     <p>รายละเอียด: ${product.description}</p>
                     <a href="/product/${product.id}" class="details-button">ดูรายละเอียดเพิ่มเติม</a>
@@ -57,7 +57,7 @@ function confirmDelete(productId) {
             // Retrieve the JWT token from local storage
             const token = localStorage.getItem('jwt_token');
 
-            fetch(`http://localhost:3000/admin/delete-item/${productId}`, {
+            fetch(`${API_URL}/admin/delete-item/${productId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`, // Include the JWT token

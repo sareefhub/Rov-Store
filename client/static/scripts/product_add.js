@@ -50,7 +50,7 @@ document.getElementById('add-product-form').addEventListener('submit', function(
     formData.append('price', newProduct.price);
     formData.append('description', newProduct.description);
 
-    fetch('http://localhost:3000/admin/add-item', {
+    fetch(`${API_URL}/admin/add-item`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}` // Authorization header
