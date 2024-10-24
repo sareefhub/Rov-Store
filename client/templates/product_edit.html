@@ -85,12 +85,14 @@
             const formData = new FormData();
             formData.append('price', newPrice);
             formData.append('description', newDescription);
-            formData.append('existingImage', '{{ product.image }}'); // Set to existing image by default
 
             // Process main image upload
             const mainImageFile = document.getElementById('new-mainImageUpload').files[0];
             if (mainImageFile) {
-                formData.append('mainImage', mainImageFile); // Add the new main image
+            formData.append('image', mainImageFile);
+            } else {
+            // If no new image is selected, include the existing image URL
+            formData.append('image', '{{ product.image }}');
             }
     
             // Process additional images upload

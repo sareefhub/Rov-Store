@@ -116,7 +116,7 @@ app.post('/admin/add-item', verifyToken, upload.fields([
     res.status(201).json({ message: 'Product added successfully!', newItem });
 });
 
-app.put('/admin/edit-item/:id', upload.fields([{ name: 'mainImage' }, { name: 'additionalImages' }]), verifyToken, (req, res) => {
+app.put('/admin/edit-item/:id', upload.fields([{ name: 'image' }, { name: 'additionalImages' }]), verifyToken, (req, res) => {
     const { id } = req.params;
     const updatedItem = req.body;
 
@@ -133,17 +133,17 @@ app.put('/admin/edit-item/:id', upload.fields([{ name: 'mainImage' }, { name: 'a
 
     if (req.files) {
         // Handle main image upload
-        if (req.files.mainImage && req.files.mainImage.length > 0) {
-            if (oldProduct.mainImage) {
+        if (req.files.image && req.files.image.length > 0) {
+            if (oldProduct.image) {
                 // Delete old main image
                 try {
-                    fs.unlinkSync(path.join(__dirname, 'uploads', oldProduct.mainImage));
+                    fs.unlinkSync(path.join(__dirname, 'uploads', oldProduct.image));
                 } catch (err) {
                     console.error(`Error deleting old main image: ${err.message}`);
                 }
             }
             // Update mainImage with the new file
-            products[productIndex].mainImage = req.files.mainImage[0].filename;
+            products[productIndex].image = req.files.image[0].filename;
         }
 
         // Handle additional images upload
