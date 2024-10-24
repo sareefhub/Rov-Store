@@ -5,15 +5,17 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer'); // Import multer
+require('dotenv').config({ path: path.join(__dirname, '.env') }); // ระบุ path ของ .env
 
 const app = express();
 const port = 3000;
 
-const JWT_SECRET = 'your_jwt_secret_key';
+// Use environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const adminUser = {
-    username: 'admin',
-    password: bcrypt.hashSync('@@Admin123', 8) // Hashing the password
+    username: process.env.ADMIN_USERNAME,
+    password: process.env.ADMIN_PASSWORD_HASH // Use hashed password from .env
 };
 
 // Load product data from JSON file
