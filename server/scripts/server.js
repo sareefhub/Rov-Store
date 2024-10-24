@@ -5,31 +5,72 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer'); // Import multer
+require('dotenv').config({ path: path.join(__dirname, '.env') }); // ระบุ path ของ .env
 
 const app = express();
 const port = 3000;
 
-const JWT_SECRET = 'your_jwt_secret_key';
+// Use environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const adminUser = {
-    username: 'admin',
-    password: bcrypt.hashSync('@@Admin123', 8) // Hashing the password
+    username: process.env.ADMIN_USERNAME,
+    password: process.env.ADMIN_PASSWORD_HASH // Use hashed password from .env
 };
 
 // Load product data from JSON file
 const productsPath = path.join(__dirname, '..', 'data', 'products.json');
 let products = [];
 
-// Function to load products
+// Function to load products and clean up unused images
 const loadProducts = () => {
     try {
         const data = fs.readFileSync(productsPath, 'utf-8');
         products = JSON.parse(data);
+        cleanupUnusedImages(); // Call cleanup after loading products
     } catch (error) {
         console.error('Error reading products file:', error);
     }
 };
 
+// Cleanup function to delete unused images
+const cleanupUnusedImages = () => {
+    const usedImages = new Set();
+
+    // Collect all used images from the products
+    products.forEach(product => {
+        if (product.image) {
+            usedImages.add(product.image);
+        }
+        product.additionalImages.forEach(image => {
+            usedImages.add(image);
+        });
+    });
+
+    // Read the uploads directory
+    fs.readdir(path.join(__dirname, '..', 'uploads'), (err, files) => {
+        if (err) {
+            console.error('Error reading uploads directory:', err);
+            return;
+        }
+
+        files.forEach(file => {
+            // If the file is not in the used images, delete it
+            if (!usedImages.has(file)) {
+                const filePath = path.join(__dirname, '..', 'uploads', file);
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error(`Error deleting unused image ${file}:`, err);
+                    } else {
+                        console.log(`Deleted unused image: ${file}`);
+                    }
+                });
+            }
+        });
+    });
+};
+
+// Call loadProducts initially to populate products and clean up
 loadProducts();
 
 app.use(cors());
@@ -116,12 +157,13 @@ app.post('/admin/add-item', verifyToken, upload.fields([
     res.status(201).json({ message: 'Product added successfully!', newItem });
 });
 
+// Edit item (requires JWT token)
 app.put('/admin/edit-item/:id', upload.fields([{ name: 'image' }, { name: 'additionalImages' }]), verifyToken, (req, res) => {
     const { id } = req.params;
     const updatedItem = req.body;
 
     const productIndex = products.findIndex(item => item.id === parseInt(id));
-    
+
     if (productIndex === -1) {
         return res.status(404).json({ message: 'Product not found!' });
     }
