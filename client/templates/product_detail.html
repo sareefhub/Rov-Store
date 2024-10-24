@@ -19,13 +19,13 @@
             <p>รหัสสินค้า: {{ product.id }}</p>
 
             <h3>รูปภาพหลัก:</h3>
-            <img src="http://localhost:3000/uploads/{{ product.image }}" alt="Main Product Image" class="expandable-image">
+            <img data-src="{{ product.image }}" alt="Main Product Image" class="expandable-image">
 
             <h3>รูปภาพเพิ่มเติม:</h3>
             <div class="additional-images">
                 {% if product.additionalImages %}
                     {% for image in product.additionalImages %}
-                        <img src="http://localhost:3000/uploads/{{ image }}" alt="Additional Product Image" class="expandable-image">
+                        <img data-src="{{ image }}" alt="Additional Product Image" class="expandable-image">
                     {% endfor %}
                 {% else %}
                     <p>ไม่มีรูปภาพเพิ่มเติม</p>
@@ -46,7 +46,52 @@
         <p>&copy; 2024 Rov Store. All rights reserved.</p>
     </footer>
     
-    <script src="/config.js"></script>
-    <script src="{{ url_for('static', filename='scripts/product_detail.js') }}"></script>
+    <script src="{{ url_for('config') }}"></script>
+    <script>
+    // Function to set image sources dynamically
+    document.addEventListener('DOMContentLoaded', function() {
+        const apiUrl = API_URL; // Use the API_URL defined in config.js
+
+        // Set the main product image
+        const mainImage = document.querySelector('.expandable-image'); // Assuming there's only one main image
+        if (mainImage) {
+            const productImageSrc = mainImage.getAttribute('data-src');
+            mainImage.src = `${apiUrl}/uploads/${productImageSrc}`;
+        }
+
+        // Set additional images
+        const additionalImages = document.querySelectorAll('.additional-images img');
+        additionalImages.forEach(image => {
+            const additionalImageSrc = image.getAttribute('data-src');
+            image.src = `${apiUrl}/uploads/${additionalImageSrc}`;
+        });
+    });
+
+    // Modal functionality
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const captionText = document.getElementById('caption');
+    const closeBtn = document.getElementsByClassName('close')[0];
+
+    document.querySelectorAll('.expandable-image').forEach(img => {
+        img.addEventListener('click', function() {
+            modal.style.display = 'block';
+            modalImg.src = this.src;
+            captionText.innerHTML = this.alt;
+        });
+    });
+
+    // Close the modal
+    closeBtn.onclick = function() { 
+        modal.style.display = 'none';
+    };
+
+    // Close modal when clicking outside the image
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+    </script>
 </body>
 </html>
