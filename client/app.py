@@ -1,4 +1,5 @@
 # pip3 install -r requirements.txt
+# python app.py
 import os
 import requests
 import jwt
